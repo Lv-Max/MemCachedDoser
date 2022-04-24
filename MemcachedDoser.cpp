@@ -304,11 +304,11 @@ int main(int argc, char* argv[])
   {
     printf("USAGE: ./MemcachedDoser [target] [port] [threads] [time] \n\n");
     printf("[Target]:     Target ipv4 address.\n");
-    printf("[Port]:     Target port.\n");
+    printf("[Port]:       Target port.\n");
     printf("[Threads]:    Number of threads.\n");
     printf("[Time]:       The duration of the attack (default 30 seconds).\n\n");
-    printf("Important:    This Program needs file \"mem.list\" in current folder, which has some Memcached server ip.\n");
-    printf("FBI warning:  Dont be evil ! plz only use it for testing.\n");
+    printf("Important:    This Program requires file \"mem.list\" in current folder, which contains Memcached server ip.\n");
+    printf("FBI warning:  Dont be evil ! plz only use it for authorized pentesting.\n");
     return 0;
   }
   if(argc >= 4)
@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
     printf("[?] Can't find file \"mem.list\"\n");
     return 0;
   }
-  //读取 ntpservers list
+  //读取 Memcached server list
   NTP_SERVERS_ARR = GetNtpServersArr(GetNtpServers("mem.list"),"\n");
   NTP_SERVER_COUNT = atoi(NTP_SERVERS_ARR[0]) - 1;
 
