@@ -8,7 +8,7 @@ Introduction.
 
 Compiling.
 ===
-    gcc MemcachedDoser.cpp -o NTPDoser -lstdc++ -lpthread
+    gcc MemcachedDoser.cpp -o MemcachedDoser -lstdc++ -lpthread
 Running Memcached Doser.
 ===
 	sudo ./NTPDoser [Target] [Port] [Threads] [Time]
