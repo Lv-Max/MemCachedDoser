@@ -11,7 +11,7 @@ Compiling.
     gcc MemcachedDoser.cpp -o MemcachedDoser -lstdc++ -lpthread
 Running Memcached Doser.
 ===
-	sudo ./NTPDoser [Target] [Port] [Threads] [Time]
+	sudo ./MemcachedDoser  [Target] [Port] [Threads] [Time]
 Screenshot.
 ===
 ![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/help.png)
