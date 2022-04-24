@@ -1,21 +1,21 @@
-NTP Doser
+Memcached Doser
 ===
 
 Introduction.
 ===
-*NTP Doser* is a NTP Amplification DoS tool which code by C/C++.
-*NTP Doser* is just a pentesting tool , so don't be evil.
+*Memcached Doser* is a NTP Amplification DoS tool which code by C/C++.
+*Memcached Doser* is just a pentesting tool , so don't be evil.
 
 Compiling.
 ===
-    gcc NTPDoser.cpp -o NTPDoser -lstdc++ -lpthread
-Running NTP Doser.
+    gcc MemcachedDoser.cpp -o NTPDoser -lstdc++ -lpthread
+Running Memcached Doser.
 ===
-	sudo ./NTPDoser [target] [threads] [time]
+	sudo ./NTPDoser [Target] [Port] [Threads] [Time]
 Screenshot.
 ===
-![image](https://github.com/DrizzleRisk/NTPDoser/blob/master/screenshot/help.png)
-![image](https://github.com/DrizzleRisk/NTPDoser/blob/master/screenshot/test.png)
+![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/help.png)
+![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/test.png)
 
 License.
 ===

