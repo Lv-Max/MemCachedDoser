@@ -15,7 +15,7 @@ Running Memcached Doser.
 Screenshot.
 ===
 ![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/help.png)
-![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/test.png)
+![image](https://github.com/Lv-Max/MemCachedDoser/blob/master/screenshot/result.png)
 
 License.
 ===
